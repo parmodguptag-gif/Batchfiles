@@ -1,0 +1,321 @@
+��&cls
+::[Bat To Exe Converter]
+::
+::YAwzoRdxOk+EWAnk
+::fBw5plQjdG8=
+::YAwzuBVtJxjWCl3EqQJgSA==
+::ZR4luwNxJguZRRnk
+::Yhs/ulQjdF+5
+::cxAkpRVqdFKZSDk=
+::cBs/ulQjdF+5
+::ZR41oxFsdFKZSDk=
+::eBoioBt6dFKZSDk=
+::cRo6pxp7LAbNWATEpCI=
+::egkzugNsPRvcWATEpCI=
+::dAsiuh18IRvcCxnZtBJQ
+::cRYluBh/LU+EWAnk
+::YxY4rhs+aU+JeA==
+::cxY6rQJ7JhzQF1fEqQJQ
+::ZQ05rAF9IBncCkqN+0xwdVs0
+::ZQ05rAF9IAHYFVzEqQJQ
+::eg0/rx1wNQPfEVWB+kM9LVsJDGQ=
+::fBEirQZwNQPfEVWB+kM9LVsJDGQ=
+::cRolqwZ3JBvQF1fEqQJQ
+::dhA7uBVwLU+EWDk=
+::YQ03rBFzNR3SWATElA==
+::dhAmsQZ3MwfNWATElA==
+::ZQ0/vhVqMQ3MEVWAtB9wSA==
+::Zg8zqx1/OA3MEVWAtB9wSA==
+::dhA7pRFwIByZRRnk
+::Zh4grVQjdCqDJH2B50kkJwtrYAuBPX+zCbsg2Oz9r8+foUgRFMYwb4HX1bWKYOYB5UikWoM52nVVk4MqBRVZclvlaxcxyQ==
+::YB416Ek+ZG8=
+::
+::
+::978f952a14a936cc963da21a135fa983
+@echo off
+cls
+
+:: ====================================================
+:: MASTER SECURITY KEYS CONFIGURATION
+:: ====================================================
+set "TRIAL_KEY=TRIAL2DAYS"
+set "EXTENSION_KEY=EXTEND15DAYS"
+set "LIFETIME_KEY=RadheRadhe"
+set "SAVE_FOLDER=%~dp0pdf"
+set "DEFAULT_DAYS=30"
+:: ====================================================
+
+:SECURITY_ENGINE
+:: बैकएंड में पावरशेल के जरिए एडवांस सुरक्षा परतों और सख्त रजिस्ट्री टाइम गेटवे की जांच
+powershell -NoProfile -ExecutionPolicy Bypass -Command "$regPath = 'HKCU:\Software\OutlookDownloaderUltimateSecurity'; if (-not (Test-Path $regPath)) { $null = New-Item -Path $regPath -Force; $null = New-ItemProperty -Path $regPath -Name 'FirstRun' -Value (Get-Date).ToString('yyyy-MM-dd') -PropertyType String; $null = New-ItemProperty -Path $regPath -Name 'Status' -Value 'Trial' -PropertyType String; $null = New-ItemProperty -Path $regPath -Name 'ExtRun' -Value '' -PropertyType String; $null = New-ItemProperty -Path $regPath -Name 'Attempts' -Value 0 -PropertyType DWord; }; $sec = Get-ItemProperty -Path $regPath; if ($sec.Status -eq 'Blocked') { Write-Host '========= [HARD LOCKED] =========' -ForegroundColor Red; Write-Host 'Aapne 3 baar galat code dala tha. Yeh script hamesha ke liye block ho chuki hai!' -ForegroundColor Red; exit 4 }; if ($sec.Status -eq 'Activated') { exit 0 }; try { $webClient = New-Object System.Net.WebClient; $null = $webClient.DownloadString('https://google.com'); $currentDate = [DateTime]::Parse($webClient.ResponseHeaders['Date']); } catch { Write-Host '[ERROR] Internet connection zaroori hai license verify karne ke liye!' -ForegroundColor Red; exit 3 }; $firstRunDate = [DateTime]::ParseExact($sec.FirstRun, 'yyyy-MM-dd', $null); if ($currentDate -lt $firstRunDate) { Write-Host '[ALERT] Date manipulation detected!' -ForegroundColor Red; exit 2 }; if ($sec.Status -eq 'Trial') { $daysPassed = ($currentDate - $firstRunDate).Days; if ($daysPassed -ge 2) { exit 5 } else { if ($sec.ExtRun -eq 'Verified') { exit 0 } else { exit 1 } } }; if ($sec.Status -eq 'Extended') { $extRunDate = [DateTime]::ParseExact($sec.ExtRun, 'yyyy-MM-dd', $null); if ($currentDate -lt $extRunDate) { Write-Host '[ALERT] Date manipulation detected!' -ForegroundColor Red; exit 2 }; $extDaysPassed = ($currentDate - $extRunDate).Days; if ($extDaysPassed -ge 15) { exit 6 } else { exit 0 } };"
+
+if %ERRORLEVEL%==0 goto :MAIN_MENU
+if %ERRORLEVEL%==1 goto :TRIAL_GATEWAY_SCREEN
+if %ERRORLEVEL%==2 pause && exit
+if %ERRORLEVEL%==3 pause && exit
+if %ERRORLEVEL%==4 pause && exit
+if %ERRORLEVEL%==5 goto :TRIAL_EXPIRED_SCREEN
+if %ERRORLEVEL%==6 goto :EXTENSION_EXPIRED_SCREEN
+
+:: ====================================================
+:: LAYER 1: TRIAL GATEWAY (DAY 1 & DAY 2 - SAVE TO REGISTRY)
+:: ====================================================
+:TRIAL_GATEWAY_SCREEN
+cls
+echo ====================================================
+echo    SECURITY CHECK: 2-Days Trial Active
+echo ====================================================
+echo.
+echo Is script ko chalane ke liye 2-Days Trial Key enter karein.
+echo (Ek baar sahi key dalne par registry save ho jayegi)
+echo.
+set "USER_KEY="
+set /p "USER_KEY=Enter Trial Key: "
+
+if "%USER_KEY%"=="%TRIAL_KEY%" (
+    powershell -NoProfile -ExecutionPolicy Bypass -Command "Set-ItemProperty -Path 'HKCU:\Software\OutlookDownloaderUltimateSecurity' -Name 'ExtRun' -Value 'Verified'"
+    goto :MAIN_MENU
+)
+echo.
+echo ----------------------------------------------------
+echo [ERROR] Galat Trial Key! Access Denied.
+echo ----------------------------------------------------
+pause
+goto :TRIAL_GATEWAY_SCREEN
+
+:: ====================================================
+:: LAYER 2: EXTENSION GATEWAY (AFTER 2 DAYS)
+:: ====================================================
+:TRIAL_EXPIRED_SCREEN
+cls
+echo ====================================================
+echo    [EXPIRED] Aapka 2 Dino Ka Free Trial Khatam Ho Gaya Hai!
+echo ====================================================
+echo.
+echo Is script ko aage badhane ke liye 15-Days Extension Key enter karein.
+echo.
+set "USER_KEY="
+set /p "USER_KEY=Enter Extension Key: "
+
+if "%USER_KEY%"=="%EXTENSION_KEY%" (
+    powershell -NoProfile -ExecutionPolicy Bypass -Command "$d=(Get-Date).ToString('yyyy-MM-dd'); Set-ItemProperty -Path 'HKCU:\Software\OutlookDownloaderUltimateSecurity' -Name 'Status' -Value 'Extended'; Set-ItemProperty -Path 'HKCU:\Software\OutlookDownloaderUltimateSecurity' -Name 'ExtRun' -Value $d"
+    echo.
+    echo ----------------------------------------------------
+    echo [SUCCESS] 15 Days Extension Registry mein active ho gaya hai!
+    echo ----------------------------------------------------
+    pause
+    goto :MAIN_MENU
+)
+echo.
+echo ----------------------------------------------------
+echo [ERROR] Galat Extension Key! Kripya sahi code enter karein.
+echo ----------------------------------------------------
+pause
+goto :TRIAL_EXPIRED_SCREEN
+
+:: ====================================================
+:: LAYER 3: LIFETIME GATEWAY (AFTER 15 DAYS + ANTI-BRUTE FORCE)
+:: ====================================================
+:EXTENSION_EXPIRED_SCREEN
+cls
+echo ====================================================
+echo    [EXPIRED] Aapka 15 Dino Ka Extension Bhi Khatam Ho Gaya!
+echo ====================================================
+echo.
+echo [CAUTION] Ab keval Lifetime Full Activation Key hi accept hogi.
+echo Yadi 3 baar galat code dala to file permanently lock ho jayegi!
+echo.
+:: करंट अटैम्प्स रीड करना
+for /f "tokens=3" %%A in ('reg query "HKCU\Software\OutlookDownloaderUltimateSecurity" /v Attempts 2^>nul') do set /a ATTEMPTS=%%A
+set /a REMAINING_ATTEMPTS=3 - %ATTEMPTS%
+echo Remaining Attempts: %REMAINING_ATTEMPTS% / 3
+echo ----------------------------------------------------
+
+set "USER_KEY="
+set /p "USER_KEY=Lifetime Full Activation Key Likhein: "
+
+if "%USER_KEY%"=="%LIFETIME_KEY%" goto :ACTIVATE_LIFETIME
+
+:: गलत पासवर्ड हैंडलर और ब्रूट फोर्स प्रोटेक्शन काउंटर
+powershell -NoProfile -ExecutionPolicy Bypass -Command "$regPath = 'HKCU:\Software\OutlookDownloaderUltimateSecurity'; $amt = (Get-ItemProperty -Path $regPath).Attempts + 1; if ($amt -ge 3) { Set-ItemProperty -Path $regPath -Name 'Status' -Value 'Blocked'; Write-Host '[CRITICAL ERROR] 3 Attempts poore ho gaye! Script permanently BLOCK kar di gayi hai.' -ForegroundColor Red; } else { Set-ItemProperty -Path $regPath -Name 'Attempts' -Value $amt; Write-Host '[WARNING] Galat Code!' -ForegroundColor Yellow; }"
+pause
+goto :SECURITY_ENGINE
+
+:ACTIVATE_LIFETIME
+powershell -NoProfile -ExecutionPolicy Bypass -Command "Set-ItemProperty -Path 'HKCU:\Software\OutlookDownloaderUltimateSecurity' -Name 'Status' -Value 'Activated'"
+echo.
+echo ----------------------------------------------------
+echo [SUCCESS] Script Registry mein LIFETIME ke liye activate ho gayi hai!
+echo ----------------------------------------------------
+pause
+goto :MAIN_MENU
+
+:: ====================================================
+:: MAIN APPLICATION MENU
+:: ====================================================
+:MAIN_MENU
+cls
+echo ====================================================
+echo    Outlook File Downloader - MAIN MENU
+echo ====================================================
+echo.
+echo     1. Download by Email Address (Inbox + Sent + Subfolders)
+echo     2. Download from Specific Inbox Sub-folder (List Mode)
+echo     3. Exit
+echo.
+echo Saving Location: %SAVE_FOLDER%
+echo ----------------------------------------------------
+set "MENU_CHOICE="
+set /p "MENU_CHOICE=Apna vikalp chunein (1, 2 ya 3): "
+
+if "%MENU_CHOICE%"=="1" goto :EMAIL_SELECTION
+if "%MENU_CHOICE%"=="2" goto :SUBFOLDER_LIST_MODE
+if "%MENU_CHOICE%"=="3" exit
+
+echo.
+echo ----------------------------------------------------
+echo [ERROR] Galat input! Kripya sirf '1', '2' ya '3' enter karein.
+echo ----------------------------------------------------
+pause
+goto :MAIN_MENU
+
+:FILE_TYPE_MENU
+echo.
+echo ====================================================
+echo    Select File Type to Download
+echo ====================================================
+echo     1. Only PDF (.pdf)
+echo     2. Only Excel (.xls, .xlsx, .xlsm)
+echo     3. Both PDF and Excel
+echo.
+set "FILE_CHOICE="
+set /p "FILE_CHOICE=Kaun si files download karni hain? (1, 2 ya 3): "
+
+if "%FILE_CHOICE%"=="1" goto :VALID_FILE_TYPE
+if "%FILE_CHOICE%"=="2" goto :VALID_FILE_TYPE
+if "%FILE_CHOICE%"=="3" goto :VALID_FILE_TYPE
+
+echo.
+echo ----------------------------------------------------
+echo [ERROR] Galat input! Kripya sirf '1', '2' ya '3' enter karein.
+echo ----------------------------------------------------
+goto :FILE_TYPE_MENU
+
+:VALID_FILE_TYPE
+goto :%NEXT_STEP%
+
+:EMAIL_SELECTION
+cls
+echo ====================================================
+echo    Mode: Download by Email Address
+echo ====================================================
+echo Target Folder: %SAVE_FOLDER%
+echo.
+
+:EMAIL_INPUT_LOOP
+set "SENDER_EMAIL="
+set /p "SENDER_EMAIL=1. Email Address(es) likhein (Ek se zyada ke liye Comma , lagayein): "
+
+if "%SENDER_EMAIL%"=="" (
+    echo.
+    echo ----------------------------------------------------
+    echo [ERROR] Email address khali nahi chhod sakte! Kripya type karein.
+    echo ----------------------------------------------------
+    pause
+    goto :EMAIL_INPUT_LOOP
+)
+
+set "NEXT_STEP=EMAIL_CONTINUE"
+goto :FILE_TYPE_MENU
+
+:EMAIL_CONTINUE
+echo.
+set /p "DAYS_BACK=2. Kitne din purane mail scan karne hain? [%DEFAULT_DAYS%]: "
+if "%DAYS_BACK%"=="" set "DAYS_BACK=%DEFAULT_DAYS%"
+
+set /p "DATE_FOLDER_CHOICE=3. Kya date-wise alag folder banane hain? (Y/N): "
+
+echo.
+echo Outlook mein mails scan kiye ja rahe hain... Kripya pratiksha karein...
+echo ----------------------------------------------------
+if not exist "%SAVE_FOLDER%" mkdir "%SAVE_FOLDER%"
+
+powershell -NoProfile -ExecutionPolicy Bypass -Command "try { $outlook = [System.Runtime.InteropServices.Marshal]::GetActiveObject('Outlook.Application') } catch { $outlook = New-Object -ComObject Outlook.Application }; $namespace = $outlook.GetNamespace('MAPI'); $store = $namespace.DefaultStore; $rootFolder = $store.GetRootFolder(); $filterDate = (Get-Date).AddDays(-%DAYS_BACK%); [string]$emailString =  \"%SENDER_EMAIL%\"; $emailArray = @($emailString.Split(',')).ForEach({$_.Trim().ToLower()}); $isMulti = $emailArray.Length -gt 1; $global:count = 0; function ScanFolder($folder) { try { $items = $folder.Items; for ($i = $items.Count; $i -ge 1; $i--) { $email = $items.Item($i); if ($email -and $email.MessageClass -eq 'IPM.Note' -and $email.ReceivedTime -ge $filterDate) { $senderAddress = ''; if ($email.SenderEmailType -eq 'EX') { $senderObject = $email.Sender; if ($senderObject) { $exchangeUser = $senderObject.GetExchangeUser(); if ($exchangeUser) { $senderAddress = $exchangeUser.PrimarySmtpAddress } } }; if ([string]::IsNullOrEmpty($senderAddress)) { $senderAddress = $email.SenderEmailAddress }; if ($senderAddress) { $senderAddress = $senderAddress.Trim().ToLower() }; $toAddress = ''; if ($email.To) { $toAddress = $email.To.Trim().ToLower() }; $matchedEmail = $emailArray | Where-Object { $senderAddress -eq $_ -or $toAddress -like ('*' + $_ + '*') } | Select-Object -First 1; if ($matchedEmail) { if ($email.Attachments) { $hasValidFile = $false; foreach ($attachment in $email.Attachments) { $ext = [System.IO.Path]::GetExtension($attachment.FileName).ToLower(); if (('%FILE_CHOICE%' -eq '1' -and $ext -eq '.pdf') -or ('%FILE_CHOICE%' -eq '2' -and ($ext -eq '.xls' -or $ext -eq '.xlsx' -or $ext -eq '.xlsm')) -or ('%FILE_CHOICE%' -eq '3' -and ($ext -eq '.pdf' -or $ext -eq '.xls' -or $ext -eq '.xlsx' -or $ext -eq '.xlsm'))) { $hasValidFile = $true; break } }; if ($hasValidFile) { $cleanedEmail = $matchedEmail -replace '[\\\/\:\*\?\"\"\<\>\|]', '_'; $baseTargetFolder = '%SAVE_FOLDER%'; if (-not (Test-Path $baseTargetFolder)) { New-Item -ItemType Directory -Path $baseTargetFolder | Out-Null }; if ($isMulti) { $baseTargetFolder = Join-Path '%SAVE_FOLDER%' $cleanedEmail; if (-not (Test-Path $baseTargetFolder)) { New-Item -ItemType Directory -Path $baseTargetFolder | Out-Null } }; $finalFolder = $baseTargetFolder; if ('%DATE_FOLDER_CHOICE%'.ToUpper() -eq 'Y') { $mailDate = $email.ReceivedTime.ToString('yyyy-MM-dd'); $finalFolder = Join-Path $baseTargetFolder $mailDate; if (-not (Test-Path $finalFolder)) { New-Item -ItemType Directory -Path $finalFolder | Out-Null } }; foreach ($attachment in $email.Attachments) { $ext = [System.IO.Path]::GetExtension($attachment.FileName).ToLower(); $match = $false; if ('%FILE_CHOICE%' -eq '1' -and $ext -eq '.pdf') { $match = $true }; if ('%FILE_CHOICE%' -eq '2' -and ($ext -eq '.xls' -or $ext -eq '.xlsx' -or $ext -eq '.xlsm')) { $match = $true }; if ('%FILE_CHOICE%' -eq '3' -and ($ext -eq '.pdf' -or $ext -eq '.xls' -or $ext -eq '.xlsx' -or $ext -eq '.xlsm')) { $match = $true }; if ($match) { $filePath = Join-Path $finalFolder $attachment.FileName; $attachment.SaveAsFile($filePath); Write-Host 'Saved (' $cleanedEmail '):' $attachment.FileName -ForegroundColor Green; $global:count++ } } } } } } } catch {} foreach ($subFolder in $folder.Folders) { ScanFolder $subFolder } }; ScanFolder $rootFolder; Write-Host '----------------------------------------------------' -ForegroundColor White; Write-Host 'Total' $global:count 'Files download ho gayi hain.' -ForegroundColor Cyan;"
+goto :PROCEED_END
+
+:SUBFOLDER_LIST_MODE
+cls
+echo ====================================================
+echo    Mode: Select Sub-folder from Outlook List
+echo ====================================================
+echo Target Folder: %SAVE_FOLDER%
+echo.
+
+echo Aapke Inbox ke folders load kiye ja rahe hain... Kripya pratiksha karein...
+echo ----------------------------------------------------
+
+set "TEMP_LIST=%temp%\outlook_folders.txt"
+if exist "%TEMP_LIST%" del "%TEMP_LIST%"
+
+powershell -NoProfile -ExecutionPolicy Bypass -Command "try { $outlook = [System.Runtime.InteropServices.Marshal]::GetActiveObject('Outlook.Application') } catch { $outlook = New-Object -ComObject Outlook.Application }; $namespace = $outlook.GetNamespace('MAPI'); $inbox = $namespace.GetDefaultFolder(6); $count = 1; if ($inbox.Folders.Count -eq 0) { Write-Host 'Inbox ke andar koi sub-folder nahi mila!' -ForegroundColor Yellow; exit 2 }; foreach ($f in $inbox.Folders) { Write-Host ($count.ToString() + '. ' + $f.Name) -ForegroundColor Cyan; Add-Content -Path '%TEMP_LIST%' -Value $f.Name; $count++ }"
+
+if %ERRORLEVEL%==2 (
+    echo ----------------------------------------------------
+    pause
+    goto :MAIN_MENU
+)
+
+echo ----------------------------------------------------
+:CHOICE_LOOP
+set "FOLDER_INDEX="
+set /p "FOLDER_INDEX=Upar diye gaye list mein se folder ka NUMBER chunein: "
+
+if "%FOLDER_INDEX%"=="" (
+    echo [ERROR] Number type karna zaroori hai!
+    goto :CHOICE_LOOP
+)
+
+for /f "tokens=*" %%A in ('powershell -NoProfile -ExecutionPolicy Bypass -Command "$lines = Get-Content '%TEMP_LIST%'; if ($lines -and '%FOLDER_INDEX%' -match '^\d+$' -and [int]'%FOLDER_INDEX%' -le $lines.Count -and [int]'%FOLDER_INDEX%' -gt 0) { Write-Host $lines[[int]'%FOLDER_INDEX%'-1] } else { exit 1 }"') do set "SUB_FOLDER_NAME=%%A"
+
+if "%SUB_FOLDER_NAME%"=="" (
+    echo.
+    echo [ERROR] Galat number chuna gaya hai! Kripya sahi number dalein.
+    echo.
+    goto :CHOICE_LOOP
+)
+
+if exist "%TEMP_LIST%" del "%TEMP_LIST%"
+
+echo.
+echo Selected Folder: %SUB_FOLDER_NAME%
+echo ----------------------------------------------------
+
+set "NEXT_STEP=SUBFOLDER_CONTINUE"
+goto :FILE_TYPE_MENU
+
+:SUBFOLDER_CONTINUE
+echo.
+set /p "DAYS_BACK=2. Kitne din purane mail scan karne hain? [%DEFAULT_DAYS%]: "
+if "%DAYS_BACK%"=="" set "DAYS_BACK=%DEFAULT_DAYS%"
+
+set /p "DATE_FOLDER_CHOICE=3. Kya date-wise alag folder banane hain? (Y/N): "
+
+echo.
+echo Folder '%SUB_FOLDER_NAME%' se files extract kiye ja rahe hain...
+echo ----------------------------------------------------
+
+powershell -NoProfile -ExecutionPolicy Bypass -Command "try { $outlook = [System.Runtime.InteropServices.Marshal]::GetActiveObject('Outlook.Application') } catch { $outlook = New-Object -ComObject Outlook.Application }; $namespace = $outlook.GetNamespace('MAPI'); $inbox = $namespace.GetDefaultFolder(6); $targetFolder = $null; try { $targetFolder = $inbox.Folders.Item([int]%FOLDER_INDEX%) } catch {}; if ($targetFolder -ne $null) { $filterDate = (Get-Date).AddDays(-%DAYS_BACK%); $count = 0; try { $items = $targetFolder.Items; for ($i = $items.Count; $i -ge 1; $i--) { try { $email = $items.Item($i); if ($email -and $email.MessageClass -eq 'IPM.Note' -and $email.ReceivedTime -ge $filterDate) { if ($email.Attachments) { $hasValidFile = $false; foreach ($attachment in $email.Attachments) { $ext = [System.IO.Path]::GetExtension($attachment.FileName).ToLower(); if (('%FILE_CHOICE%' -eq '1' -and $ext -eq '.pdf') -or ('%FILE_CHOICE%' -eq '2' -and ($ext -eq '.xls' -or $ext -eq '.xlsx' -or $ext -eq '.xlsm')) -or ('%FILE_CHOICE%' -eq '3' -and ($ext -eq '.pdf' -or $ext -eq '.xls' -or $ext -eq '.xlsx' -or $ext -eq '.xlsm'))) { $hasValidFile = $true; break } }; if ($hasValidFile) { $senderAddress = ''; if ($email.SenderEmailType -eq 'EX') { $senderObject = $email.Sender; if ($senderObject) { $exchangeUser = $senderObject.GetExchangeUser(); if ($exchangeUser) { $senderAddress = $exchangeUser.PrimarySmtpAddress } } }; if ([string]::IsNullOrEmpty($senderAddress)) { $senderAddress = $email.SenderEmailAddress }; if (-not [string]::IsNullOrEmpty($senderAddress)) { $senderAddress = $senderAddress.Trim().ToLower() } else { $senderAddress = 'unknown_sender' }; $cleanedSubFolder = $targetFolder.Name -replace '[\\\/\:\*\?\"\"\<\>\|]', '_'; $cleanedEmail = $senderAddress -replace '[\\\/\:\*\?\"\"\<\>\|]', '_'; $mainSave = '%SAVE_FOLDER%'; if (-not (Test-Path $mainSave)) { New-Item -ItemType Directory -Path $mainSave | Out-Null }; $step1Folder = Join-Path $mainSave $cleanedSubFolder; if (-not (Test-Path $step1Folder)) { New-Item -ItemType Directory -Path $step1Folder | Out-Null }; $step2Folder = Join-Path $step1Folder $cleanedEmail; if (-not (Test-Path $step2Folder)) { New-Item -ItemType Directory -Path $step2Folder | Out-Null }; $finalSavePath = $step2Folder; if ('%DATE_FOLDER_CHOICE%'.ToUpper() -eq 'Y') { $mailDate = $email.ReceivedTime.ToString('yyyy-MM-dd'); $finalSavePath = Join-Path $step2Folder $mailDate; if (-not (Test-Path $finalSavePath)) { New-Item -ItemType Directory -Path $finalSavePath | Out-Null } }; foreach ($attachment in $email.Attachments) { $ext = [System.IO.Path]::GetExtension($attachment.FileName).ToLower(); $match = $false; if ('%FILE_CHOICE%' -eq '1' -and $ext -eq '.pdf') { $match = $true }; if ('%FILE_CHOICE%' -eq '2' -and ($ext -eq '.xls' -or $ext -eq '.xlsx' -or $ext -eq '.xlsm')) { $match = $true }; if ('%FILE_CHOICE%' -eq '3' -and ($ext -eq '.pdf' -or $ext -eq '.xls' -or $ext -eq '.xlsx' -or $ext -eq '.xlsm')) { $match = $true }; if ($match) { $filePath = Join-Path $finalSavePath $attachment.FileName; $attachment.SaveAsFile($filePath); Write-Host 'Saved In Chain (' $cleanedSubFolder '->' $cleanedEmail '):' $attachment.FileName -ForegroundColor Green; $count++ } } } } } } catch {} } } catch {} Write-Host '----------------------------------------------------' -ForegroundColor White; Write-Host 'Total' $count 'Files download ho gayi hain.' -ForegroundColor Cyan; } else { Write-Host '[ERROR] Folder access karne mein dikkat aayi.' -ForegroundColor Red }"
+
+:PROCEED_END
+echo ----------------------------------------------------
+echo Prakriya puri ho chuki hai!
+if exist "%SAVE_FOLDER%" (
+    echo [SUCCESS] Target folder ko aapke samne khola ja raha hai...
+    start "" "%SAVE_FOLDER%"
+) else (
+    echo [INFO] Koi valid file nahi mili, isliye koi folder nahi banaya gaya.
+)
+
+echo.
+pause
+goto :MAIN_MENU
